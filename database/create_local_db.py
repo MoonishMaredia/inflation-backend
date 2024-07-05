@@ -25,20 +25,28 @@ def create_table_from_dataframe(cursor, df, table_name):
 
 if __name__=="__main__":
 
-    # initialize db
+    # import files
     index_df = pd.read_csv('./datafiles/index_table_final.csv', index_col=False, usecols=['year', 'month', 'series_id', 'series_desc', 'level', 'order', 'value'])
     index_df.rename(columns={"order":"priority"}, inplace=True)
-    index_df['date'] = pd.to_datetime(index_df[['year', 'month']].assign(day=1))
+    index_df['date'] = pd.to_datetime(index_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m-%d')
+
+    weights_df = pd.read_csv('./datafiles/weights_table_final.csv', index_col=False, usecols=['year', 'month', 'series_id', 'series_desc', 'level', 'order', 'curr_weight'])
+    weights_df.rename(columns={"order":"priority", "curr_weight":"weight"}, inplace=True)
+    weights_df['date'] = pd.to_datetime(weights_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m-%d')
 
     #initialize connection
     conn = sqlite3.connect('inflation_database.db')
     cursor = conn.cursor()
     
     #execute create table query 
-    create_table_from_dataframe(cursor, index_df, 'inflation_index')
-
     #insert data into query
+    create_table_from_dataframe(cursor, index_df, 'inflation_index')
     index_df.to_sql('inflation_index', conn, if_exists='replace', index=False)
+
+    #execute create table query 
+    #insert data into query
+    create_table_from_dataframe(cursor, weights_df, 'weights_table')
+    weights_df.to_sql('weights_table', conn, if_exists='replace', index=False)
 
     conn.commit()
     conn.close()
