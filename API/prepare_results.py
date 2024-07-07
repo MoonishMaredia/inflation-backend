@@ -38,15 +38,10 @@ def prepare_series_data(series_type, raw_df):
 
 def prepare_compare_data(raw_df):
 
-    filtered_df = raw_df.loc[raw_df['series_id'] == 'CUUR0000SA0', ['beg_index_val', 'end_index_val']]
-    print(filtered_df)
-    beg_index_val = filtered_df['beg_index_val'].values[0]
-    end_index_val = filtered_df['end_index_val'].values[0]
-    weight_difference = float(end_index_val / beg_index_val)*100-100
-    raw_df['overall_difference'] = weight_difference
-    raw_df['category_difference'] = raw_df['end_weight'] - raw_df['beg_weight']
-    raw_df['absolute_contribution'] = raw_df['category_difference'] / raw_df['overall_difference'] * raw_df['overall_difference']
+    raw_df['scalar'] = raw_df['end_index_val'] / raw_df['beg_index_val']
+    raw_df['end_weight'] = raw_df['beg_weight'] * raw_df['scalar'] 
+    raw_df['contributing_difference'] = raw_df['end_weight'] - raw_df['beg_weight']
 
-    raw_df.to_csv('test.csv')
+    print(raw_df.head())
 
     return None
