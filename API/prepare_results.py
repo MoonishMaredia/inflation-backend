@@ -38,6 +38,16 @@ def prepare_series_data(series_type, raw_df):
 
 def prepare_compare_data(raw_df):
 
+    def convert_to_native_type(obj):
+        if isinstance(obj, np.generic):
+            return obj.item()
+        elif isinstance(obj, dict):
+            return {k: convert_to_native_type(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_native_type(i) for i in obj]
+        else:
+            return obj
+
     raw_df['scalar'] = raw_df['end_index_val'] / raw_df['beg_index_val']
     raw_df['end_weight'] = raw_df['beg_weight'] * raw_df['scalar'] 
     raw_df['contributing_difference'] = np.round(raw_df['end_weight'] - raw_df['beg_weight'], 4)
@@ -57,5 +67,7 @@ def prepare_compare_data(raw_df):
             results['details'][category][desc] = {}
             results['details'][category][desc]['level'] = df_subset.loc[df_subset['series_desc'] == desc, 'level'].iloc[0]
             results['details'][category][desc]['value'] = df_subset.loc[df_subset['series_desc'] == desc, 'contributing_difference'].iloc[0]
+    
+    results = convert_to_native_type(results)
 
     return results
