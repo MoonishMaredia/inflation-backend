@@ -40,8 +40,22 @@ def prepare_compare_data(raw_df):
 
     raw_df['scalar'] = raw_df['end_index_val'] / raw_df['beg_index_val']
     raw_df['end_weight'] = raw_df['beg_weight'] * raw_df['scalar'] 
-    raw_df['contributing_difference'] = raw_df['end_weight'] - raw_df['beg_weight']
+    raw_df['contributing_difference'] = np.round(raw_df['end_weight'] - raw_df['beg_weight'], 4)
+    results = {}
 
-    print(raw_df.head())
+    results['x-axis'] = list(raw_df.loc[raw_df['level']==1]['series_desc'])
+    results['y-axis'] = list(raw_df.loc[raw_df['level']==1]['contributing_difference'])
+    results['y-axis'].insert(0, 100.0)
+    results['y-axis'].append(np.round(np.sum(results['y-axis']),4))
 
-    return None
+    results['details'] = {}
+
+    for category in results['x-axis']:
+        df_subset = raw_df.loc[raw_df['parent_category_series_desc']==category].copy()
+        results['details'][category] = {}
+        for desc in df_subset['series_desc']:
+            results['details'][category][desc] = {}
+            results['details'][category][desc]['level'] = df_subset.loc[df_subset['series_desc'] == desc, 'level'].iloc[0]
+            results['details'][category][desc]['value'] = df_subset.loc[df_subset['series_desc'] == desc, 'contributing_difference'].iloc[0]
+
+    return results

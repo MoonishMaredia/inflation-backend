@@ -42,4 +42,4 @@ async def getTimeSeriesData(request: Request, inputRequest: TimeSeriesRequest):
 async def getCompareData(request: Request, inputRequest: CompareRequest):
     print(inputRequest)
     results = get_final_data(request_type="compare", input_args = inputRequest)
-    return {"message":"Eventually this will have compare data"}
+    return results

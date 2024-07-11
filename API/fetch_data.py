@@ -59,7 +59,8 @@ def generate_compare_query(yearStart, yearEnd, monthStart, monthEnd):
         A.beg_index_val,
         B.end_index_val,
         C.beg_weight,
-        D.end_weight
+        D.parent_category_series_id,
+        D.parent_category_series_desc
     FROM 
         (SELECT 
             date, 
@@ -97,13 +98,11 @@ def generate_compare_query(yearStart, yearEnd, monthStart, monthEnd):
         ON A.series_id = C.series_id
     LEFT JOIN 
         (SELECT 
-            date, 
-            series_id,
-            weight AS end_weight
+            series_id, 
+            parent_category_series_id,
+            parent_category_series_desc
         FROM 
-            weights_table
-        WHERE 
-            date = '{endDate}'
+            series_relation
         ) AS D 
         ON A.series_id = D.series_id
     """
