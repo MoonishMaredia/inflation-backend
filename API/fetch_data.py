@@ -109,6 +109,13 @@ def generate_compare_query(yearStart, yearEnd, monthStart, monthEnd):
     return query
 
 
+def get_max_date(db_name):
+    query = "SELECT max(date) as max_date FROM inflation_index "
+    result_df = get_data(db_name, query)
+    date_string = result_df['max_date'].iloc[0]
+    return date_string
+
+
 
 def get_data(db_name, query):
 

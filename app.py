@@ -10,6 +10,7 @@ import os
 import sys
 api_path = os.path.abspath('./API')
 sys.path.append(api_path)
+from fetch_data import get_max_date
 from get_results import get_final_data
 
 app = FastAPI()
@@ -42,3 +43,8 @@ async def getTimeSeriesData(request: Request, inputRequest: TimeSeriesRequest):
 async def getCompareData(request: Request, inputRequest: CompareRequest):
     results = get_final_data(request_type="compare", input_args = inputRequest)
     return results
+
+@app.get("/api/v1/maxDate")
+async def getMaxDate():
+    max_date_string = get_max_date(db_name="inflation_database.db")
+    return max_date_string
