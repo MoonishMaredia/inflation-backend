@@ -115,7 +115,17 @@ def get_max_date(db_name):
     date_string = result_df['max_date'].iloc[0]
     return date_string
 
+def get_max_date_weights(db_name):
+    query = "SELECT max(date) as max_date FROM weights_table "
+    result_df = get_data(db_name, query)
+    date_string = result_df['max_date'].iloc[0]
+    return date_string
 
+def get_all_series(db_name):
+    query = "SELECT series_id, series_desc, level from series_relation"
+    result_df = get_data(db_name, query)
+    print(result_df)
+    return result_df
 
 def get_data(db_name, query):
 
