@@ -3,7 +3,7 @@ from fastapi import Request
 import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
-from models import TimeSeriesRequest, CompareRequest
+from models import TimeSeriesRequest, CompareRequest, UpdateRquest
 
 # adding Folder to the system path
 import os
@@ -12,6 +12,7 @@ api_path = os.path.abspath('./API')
 sys.path.append(api_path)
 from fetch_data import get_max_date
 from get_results import get_final_data
+from update_data import update_db
 
 app = FastAPI()
 
@@ -44,13 +45,14 @@ async def getCompareData(request: Request, inputRequest: CompareRequest):
     results = get_final_data(request_type="compare", input_args = inputRequest)
     return results
 
+@app.post("/api/v1/updateDB")
+async def updateInflationTables(request: Request, updateRequest: UpdateRquest):
+    add_date_string = updateRequest.addDate
+    print(update_db(add_date_string))
+
+    return {"hello":"Ain't no hollaback girl"}
+
 @app.get("/api/v1/maxDate")
 async def getMaxDate():
-    max_date_string = get_max_date(db_name="inflation_database.db")
+    max_date_string = get_max_date(db_name="inflation_database.db", tablename="inflation_index")
     return max_date_string
-
-@app.post("/api/v1/updateTables")
-async def updateInflationTables():
-    
-
-    return

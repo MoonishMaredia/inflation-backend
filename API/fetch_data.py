@@ -16,6 +16,21 @@ month_mapping = {
     "12": "31"
 }
 
+month_to_string = {
+    1: "01",
+    2: "02",
+    3: "03",
+    4: "04",
+    5: "05",
+    6: "06",
+    7: "07",
+    8: "08",
+    9: "09",
+    10: "10",
+    11: "11",
+    12: "12"
+}
+
 
 def generate_series_query(series_type, yearStart, yearEnd, monthStart, monthEnd, seriesIds):
 
@@ -109,23 +124,109 @@ def generate_compare_query(yearStart, yearEnd, monthStart, monthEnd):
     return query
 
 
-def get_max_date(db_name):
-    query = "SELECT max(date) as max_date FROM inflation_index "
-    result_df = get_data(db_name, query)
-    date_string = result_df['max_date'].iloc[0]
-    return date_string
+# def get_max_date(db_name):
+#     query = "SELECT max(date) as max_date FROM inflation_index "
+#     result_df = get_data(db_name, query)
+#     date_string = result_df['max_date'].iloc[0]
+#     return date_string
 
-def get_max_date_weights(db_name):
-    query = "SELECT max(date) as max_date FROM weights_table "
+def get_max_base_year(db_name):
+    query = "SELECT max(year) as max_year from base_weight"
+    result_df = get_data(db_name, query)
+    max_year = int(result_df['max_year'].iloc[0])
+    return max_year
+
+def get_max_date(db_name, tablename):
+    query = f"""SELECT max(date) as max_date FROM {tablename}"""
     result_df = get_data(db_name, query)
     date_string = result_df['max_date'].iloc[0]
     return date_string
 
 def get_all_series(db_name):
-    query = "SELECT series_id, series_desc, level from series_relation"
+    query = "SELECT series_id, series_desc, level, priority from series_relation"
     result_df = get_data(db_name, query)
-    print(result_df)
     return result_df
+
+
+def get_base_weights_and_index_for_update(db_name, addYear, addMonth): 
+    query = f"""
+    SELECT 
+        A.year,
+        A.month,
+        A.series_id,
+        A.series_desc,
+        A.level,
+        A.priority,
+        B.base_weight,
+        A.add_item_index,
+        C.base_item_index,
+        D.add_overall_index,
+        E.base_overall_index
+    FROM 
+        (SELECT 
+            year,
+            month,
+            series_id,
+            series_desc,
+            level,
+            priority,
+            value as add_item_index,
+            date
+        FROM 
+            inflation_index 
+        WHERE 
+            date = '{addYear}-{month_to_string[addMonth]}-01'
+        ) AS A
+    LEFT JOIN 
+        (SELECT
+            series_id,
+            base_weight
+        FROM 
+            base_weight
+        WHERE 
+            year = {addYear-1}
+        ) AS B 
+        ON A.series_id = B.series_id
+    LEFT JOIN 
+        (SELECT
+            series_id,
+            value as base_item_index
+        FROM 
+            inflation_index
+        WHERE 
+            date = '{addYear-1}-12-01'
+        ) AS C 
+        ON A.series_id = C.series_id
+    LEFT JOIN 
+        (SELECT
+            year,
+            series_id,
+            value as add_overall_index
+        FROM 
+            inflation_index
+        WHERE 
+            date = '{addYear}-{month_to_string[addMonth]}-01'
+        AND 
+            series_id = 'CUUR0000SA0'
+        ) AS D 
+        ON A.year = D.year 
+    LEFT JOIN 
+        (SELECT
+            year+1 as year,
+            series_id,
+            value as base_overall_index
+        FROM 
+            inflation_index
+        WHERE 
+            date = '{addYear-1}-12-01'
+        AND 
+            series_id = 'CUUR0000SA0'
+        ) AS E 
+        ON A.year = E.year
+    """
+    result_df = get_data(db_name, query)
+    return result_df
+
 
 def get_data(db_name, query):
 

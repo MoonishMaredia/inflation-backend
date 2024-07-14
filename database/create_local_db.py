@@ -35,7 +35,9 @@ if __name__=="__main__":
     weights_df['date'] = pd.to_datetime(weights_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m-%d')
 
     series_relation_df = pd.read_csv('./datafiles/series_relationship.csv', index_col=False, usecols=['series_id','series_desc', 'parent_category_series_id','parent_category_series_desc', 
-                                                                                                      'level'])
+                                                                                                      'level', 'priority'])
+    
+    annual_base_weights_df = pd.read_csv('./datafiles/annual_weights.csv', index_col=False, usecols=['series_desc','series_id', 'base_weight', 'year'])
     #initialize connection
     conn = sqlite3.connect('inflation_database.db')
     cursor = conn.cursor()
@@ -54,6 +56,11 @@ if __name__=="__main__":
     #insert data into query
     create_table_from_dataframe(cursor, series_relation_df, 'series_relation')
     series_relation_df.to_sql('series_relation', conn, if_exists='replace', index=False)
+
+    #execute create table query 
+    #insert data into query
+    create_table_from_dataframe(cursor, annual_base_weights_df, 'base_weight')
+    annual_base_weights_df.to_sql('base_weight', conn, if_exists='replace', index=False)
 
     conn.commit()
     conn.close()

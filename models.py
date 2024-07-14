@@ -21,7 +21,6 @@ from pydantic import (
     Field,
 )
 
-
 class TimeSeriesRequest(BaseModel):
     chartType: str
     seriesType: str
@@ -36,3 +35,7 @@ class CompareRequest(BaseModel):
     monthStart: str
     yearEnd: str
     monthEnd: str
+
+class UpdateRquest(BaseModel):
+    addDate: str
+    weightTableUpdated: Optional[bool]
