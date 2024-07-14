@@ -94,7 +94,6 @@ def get_dataframe(response):
 def get_series_data(series_df, addDate):
 
     series_of_interest = np.array_split(np.array(series_df['series_id']), 2)
-    # print("Here are the series of interest in array form", series_of_interest)
     tmp_df = pd.DataFrame(columns=['year', 'month', 'series_id','value'])
 
     for array in series_of_interest:
@@ -106,30 +105,21 @@ def get_series_data(series_df, addDate):
         while(True):
 
             payload = gen_api_payload(str(yr_start), str(yr_end), series)
-            # print("Here's a payload to the api:", payload)
             response = requests.post(url, json=payload)
             df = get_dataframe(response)
             tmp_df = pd.concat([tmp_df, df])
             
             break
     
-    # print("Here's the tmp df for the full year:", tmp_df)
-    # print("Will filter on the following:", addDate.month, month_to_string[addDate.month])
     tmp_df = tmp_df.loc[(tmp_df['month']==month_to_string[addDate.month])].copy()
-    # print("Here's the shape of the tmp df generated via api after filering to our month", tmp_df.shape)
-    # print("Here's the tmp df generated via api after filering to our month", tmp_df)
 
     return tmp_df
 
 def get_inflation_df_append(addDate):
 
-    # print("Pulling series table")
     series_relation_df = get_all_series('inflation_database.db')
-    # print("Getting series data")
     tmp_df = get_series_data(series_relation_df, addDate)
-    # print("Joining necessary data onto tmp_df")
     tmp_df = pd.merge(tmp_df, series_relation_df, how='left', on=['series_id'])
-    # print("Here's the df post join", tmp_df.head(), tmp_df.dtypes)
     tmp_df['date'] = pd.to_datetime(tmp_df[['year', 'month']].assign(day=1)).dt.strftime('%Y-%m-%d')
     final_columns = ['year','month','series_id','series_desc','level','priority','value','date']
     inflation_index_df = tmp_df[final_columns]
@@ -137,9 +127,6 @@ def get_inflation_df_append(addDate):
     inflation_index_df['month'] = inflation_index_df['month'].astype(int)
     inflation_index_df['value'] = inflation_index_df['value'].astype(float)
     inflation_index_df['value'] = np.round(inflation_index_df['value'], 3)
-
-    # print("Here's the columns of final df", inflation_index_df.dtypes)
-    # print("Here's the final df to append after re-ordering and adding all cols", inflation_index_df.head())
 
     return inflation_index_df
 
@@ -157,6 +144,7 @@ def get_weights_df_append(addDate):
 
 def update_db(add_date_string):
 
+    return_msg = {}
     conn = sqlite3.connect('inflation_database.db')
     cursor = conn.cursor()
 
@@ -168,25 +156,26 @@ def update_db(add_date_string):
     max_date_inflation_table = datetime.datetime.strptime(max_date_index_string, "%Y-%m-%d")
 
     if(max_date >= add_date):
-        return "This month or a more recent month already exists in weights_table. Max date was " + max_date_weights_string
+        return_msg['all_tables'] = "This month or a more recent month already exists in weights_table. Max date was " + max_date_weights_string
+        return return_msg
         
     if(max_date_inflation_table >= add_date):
-        print("Data for this month already in inflation_index table. Skipping that append...")
+        return_msg['inflation_index'] = "Data for this month already in inflation_index table. Skipping that append..."
     else:
         inflation_index_df_append = get_inflation_df_append(addDate=add_date)
-        print("Adding data to inflation_index")
         create_table_from_dataframe(cursor, inflation_index_df_append, 'inflation_index')
         inflation_index_df_append.to_sql('inflation_index', conn, if_exists='append', index=False)
+        return_msg['inflation_index'] = "inflation_index has been updated"
 
     if((int(add_date.year)-1 > max_base_year)):
-        return "Max base year is: " + str(max_base_year) + ". Cannot update table until base_weights table has been updated for " + str(int(add_date.year)-1)
+        return_msg['weights_table'] = "Max base year is: " + str(max_base_year) + ". Cannot update table until base_weights table has been updated for " + str(int(add_date.year)-1)
+        return return_msg
     else:
         weights_df_append = get_weights_df_append(addDate=add_date)
-        print("Weights df to append:", weights_df_append)
-        print("Adding data to weights_table")
         create_table_from_dataframe(cursor, weights_df_append, 'weights_table')
         weights_df_append.to_sql('weights_table', conn, if_exists='append', index=False)
+        return_msg['weights_table'] = "weights_table has been updated"
 
-    return 
+    return return_msg
     
 

@@ -48,9 +48,8 @@ async def getCompareData(request: Request, inputRequest: CompareRequest):
 @app.post("/api/v1/updateDB")
 async def updateInflationTables(request: Request, updateRequest: UpdateRquest):
     add_date_string = updateRequest.addDate
-    print(update_db(add_date_string))
-
-    return {"hello":"Ain't no hollaback girl"}
+    return_msg = update_db(add_date_string)
+    return return_msg
 
 @app.get("/api/v1/maxDate")
 async def getMaxDate():
