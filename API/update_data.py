@@ -4,6 +4,7 @@ import pandas as pd
 from fetch_data import get_max_date, get_all_series, get_base_weights_and_index_for_update, get_max_base_year
 import datetime
 import sqlite3
+import os
 
 month_to_string = {
     1: "01",
@@ -20,8 +21,7 @@ month_to_string = {
     12: "12"
 }
 
-
-api_key = '12e590849a204e98801be46e6d77ca12'
+api_key = os.getenv('BLS_API_KEY')
 url = 'https://api.bls.gov/publicAPI/v2/timeseries/data/'
 
 def create_table_from_dataframe(cursor, df, table_name):
