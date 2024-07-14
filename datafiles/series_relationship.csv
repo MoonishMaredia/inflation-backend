@@ -1,0 +1,58 @@
+series_id,series_desc,parent_category_series_id,parent_category_series_desc,level,priority
+CUUR0000SA0,All items,,,0,0
+CUUR0000SAF,Food and beverages,CUUR0000SA0,All items,1,1
+CUUR0000SAF11,Food at home,CUUR0000SAF,Food and beverages,2,2
+CUUR0000SAF111,Cereals and bakery products,CUUR0000SAF,Food and beverages,3,3
+CUUR0000SAF112,"Meats, poultry, fish, and eggs  ",CUUR0000SAF,Food and beverages,3,4
+CUUR0000SEFJ,Dairy and related products,CUUR0000SAF,Food and beverages,3,5
+CUUR0000SAF113,Fruits and vegetables,CUUR0000SAF,Food and beverages,3,6
+CUUR0000SAF114,Nonalcoholic beverages and beverage materials,CUUR0000SAF,Food and beverages,3,7
+CUUR0000SAF115,Other food at home,CUUR0000SAF,Food and beverages,3,8
+CUUR0000SEFV,Food away from home,CUUR0000SAF,Food and beverages,2,9
+CUUR0000SAF116,Alcoholic beverages,CUUR0000SAF,Food and beverages,2,10
+CUUR0000SAH,Housing,CUUR0000SA0,All items,1,11
+CUUR0000SAH1,Shelter,CUUR0000SAH,Housing,2,12
+CUUR0000SEHA,Rent of primary residence,CUUR0000SAH,Housing,3,13
+CUUR0000SEHB,Lodging away from home,CUUR0000SAH,Housing,3,14
+CUUR0000SEHC01,Owners' equivalent rent of primary residence,CUUR0000SAH,Housing,3,15
+CUUR0000SEHD,Tenants and household insurance,CUUR0000SAH,Housing,3,16
+CUUR0000SAH2,Fuels and utilities,CUUR0000SAH,Housing,2,17
+CUUR0000SEHE,Fuel oil and other fuels,CUUR0000SAH,Housing,3,18
+CUUR0000SEHF,Energy services,CUUR0000SAH,Housing,3,19
+CUUR0000SEHG,Water and Sewer Services,CUUR0000SAH,Housing,3,20
+CUUR0000SAH3,Household furnishings and operations,CUUR0000SAH,Housing,2,21
+CUUR0000SAA,Apparel,CUUR0000SA0,All items,1,22
+CUUR0000SAA1,Men's and boys' apparel,CUUR0000SAA,Apparel,2,23
+CUUR0000SAA2,Women's and girls' apparel,CUUR0000SAA,Apparel,2,24
+CUUR0000SEAE,Footwear,CUUR0000SAA,Apparel,2,25
+CUUR0000SEAF,Infants' and toddlers' apparel,CUUR0000SAA,Apparel,2,26
+CUUR0000SEAG,Jewelry and watches,CUUR0000SAA,Apparel,2,27
+CUUR0000SAT,Transportation,CUUR0000SA0,All items,1,28
+CUUR0000SAT1,Private Transportation,CUUR0000SAT,Transportation,2,29
+CUUR0000SETA,New and used motor vehicles,CUUR0000SAT,Transportation,3,30
+CUUR0000SETB,Motor fuel,CUUR0000SAT,Transportation,3,31
+CUUR0000SETC,Motor vehicle parts and equipment,CUUR0000SAT,Transportation,3,32
+CUUR0000SETD,Motor vehicle maintenance and repair,CUUR0000SAT,Transportation,3,33
+CUUR0000SETE,Motor vehicle insurance,CUUR0000SAT,Transportation,3,34
+CUUR0000SETF,Motor vehicle fees,CUUR0000SAT,Transportation,3,35
+CUUR0000SETG,Public transportation,CUUR0000SAT,Transportation,2,36
+CUUR0000SETG01,Airline fare,CUUR0000SAT,Transportation,3,37
+CUUR0000SETG02,Other intercity transportation,CUUR0000SAT,Transportation,3,38
+CUUR0000SETG03,Intracity transportation,CUUR0000SAT,Transportation,3,39
+CUUR0000SAM,Medical care,CUUR0000SA0,All items,1,40
+CUUR0000SAM1,Medical care commodities,CUUR0000SAM,Medical care,2,41
+CUUR0000SAM2,Medical care services,CUUR0000SAM,Medical care,2,42
+CUUR0000SAR,Recreation,CUUR0000SA0,All items,1,43
+CUUR0000SERA,Video and audio,CUUR0000SAR,Recreation,2,44
+CUUR0000SERB,"Pets, pet products and services",CUUR0000SAR,Recreation,2,45
+CUUR0000SERC,Sporting goods,CUUR0000SAR,Recreation,2,46
+CUUR0000SERD,Photography,CUUR0000SAR,Recreation,2,47
+CUUR0000SERE,Other recreational goods,CUUR0000SAR,Recreation,2,48
+CUUR0000SERF,Recreation services,CUUR0000SAR,Recreation,2,49
+CUUR0000SERG,Recreational reading materials,CUUR0000SAR,Recreation,2,50
+CUUR0000SAE,Education and communication,CUUR0000SA0,All items,1,51
+CUUR0000SAE1,Education,CUUR0000SAE,Education and communication,2,52
+CUUR0000SAE2,Communication,CUUR0000SAE,Education and communication,2,53
+CUUR0000SAG,Other goods and services,CUUR0000SA0,All items,1,54
+CUUR0000SEGA,Tobacco and smoking products,CUUR0000SAG,Other goods and services,2,55
+CUUR0000SAG1,Personal care goods and services,CUUR0000SAG,Other goods and services,2,56

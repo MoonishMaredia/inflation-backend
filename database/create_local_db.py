@@ -1,6 +1,5 @@
 import pandas as pd
 import sqlite3
-import os
 
 def create_table_from_dataframe(cursor, df, table_name):
     # columns = df.columns

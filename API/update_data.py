@@ -1,7 +1,6 @@
 import requests
 import numpy as np
 import pandas as pd
-import re
 from fetch_data import get_max_date, get_all_series, get_base_weights_and_index_for_update, get_max_base_year
 import datetime
 import sqlite3

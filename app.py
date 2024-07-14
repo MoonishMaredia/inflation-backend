@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi import Request
-import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from models import TimeSeriesRequest, CompareRequest, UpdateRquest
