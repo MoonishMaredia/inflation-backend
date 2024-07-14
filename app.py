@@ -18,8 +18,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000"
     , "https://localhost:3000"
-    , "http://www.api.us-cpi.com"
-    , "https://www.api.us-cpi.com"
+    , "https://www.us-cpi.com"
 ]
 
 app.add_middleware(
