@@ -1,5 +1,8 @@
-import sqlite3
+import aiosqlite
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 month_mapping = {
     "01": "31",
@@ -130,25 +133,25 @@ def generate_compare_query(yearStart, yearEnd, monthStart, monthEnd):
 #     date_string = result_df['max_date'].iloc[0]
 #     return date_string
 
-def get_max_base_year(db_name):
+async def get_max_base_year(db):
     query = "SELECT max(year) as max_year from base_weight"
-    result_df = get_data(db_name, query)
+    result_df = await get_data(db, query)
     max_year = int(result_df['max_year'].iloc[0])
     return max_year
 
-def get_max_date(db_name, tablename):
-    query = f"""SELECT max(date) as max_date FROM {tablename}"""
-    result_df = get_data(db_name, query)
+async def get_max_date(db, tablename):
+    query = f"SELECT max(date) as max_date FROM {tablename}"
+    result_df = await get_data(db, query)
     date_string = result_df['max_date'].iloc[0]
     return date_string
 
-def get_all_series(db_name):
+async def get_all_series(db):
     query = "SELECT series_id, series_desc, level, priority from series_relation"
-    result_df = get_data(db_name, query)
+    result_df = await get_data(db, query)
     return result_df
 
 
-def get_base_weights_and_index_for_update(db_name, addYear, addMonth): 
+async def get_base_weights_and_index_for_update(db, addYear, addMonth):
     query = f"""
     SELECT 
         A.year,
@@ -224,20 +227,18 @@ def get_base_weights_and_index_for_update(db_name, addYear, addMonth):
         ) AS E 
         ON A.year = E.year
     """
-    result_df = get_data(db_name, query)
+    result_df = await get_data(db, query)
     return result_df
 
 
-def get_data(db_name, query):
-
-    # Connect to the SQLite database
-    conn = sqlite3.connect(db_name)
-
-    #fetch data
-    return_df = pd.read_sql_query(query, conn)
-
-    #close connection
-    conn.close()
-
-    return return_df
+async def get_data(db, query):
+    try:
+        async with aiosqlite.connect(db) as conn:
+            async with conn.execute(query) as cursor:
+                columns = [description[0] for description in cursor.description]
+                rows = await cursor.fetchall()
+                return pd.DataFrame(rows, columns=columns)
+    except Exception as e:
+        logger.error(f"Error in get_data: {str(e)}")
+        raise
 
