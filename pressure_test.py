@@ -8,11 +8,11 @@ API_URL = "http://0.0.0.0:10000/api/v1/timeseries"  # Update with your actual AP
 sample_payload = {
     "chartType": 'time-series',
     "seriesType": 'Level',
-    "yearStart": '1999',
-    "monthStart": '03',
-    "yearEnd": '2024',
-    "monthEnd": '03',
-    "seriesIds": ['CUUR0000SA0', 'CUUR0000SAF', 'CUUR0000SAH', 'CUUR0000SAE', 'CUUR0000SAM']
+    "yearStart": '2001',
+    "monthStart": '06',
+    "yearEnd": '2023',
+    "monthEnd": '01',
+    "seriesIds": ['CUUR0000SA0', 'CUUR0000SAF', 'CUUR0000SAH', 'CUUR0000SAM','CUUR0000SAA','CUUR0000SAR']
 }
 
 headers = {
@@ -38,7 +38,7 @@ async def send_request(client, payload):
 
 async def pressure_test():
     async with httpx.AsyncClient() as client:
-        tasks = [send_request(client, sample_payload) for _ in range(100)]
+        tasks = [send_request(client, sample_payload) for _ in range(50)]
         response_times = await asyncio.gather(*tasks)
         average_response_time = sum(response_times) / len(response_times)
         print(f"Average response time: {average_response_time:.2f} seconds")
