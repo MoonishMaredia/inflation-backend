@@ -1,76 +1,69 @@
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi import HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.encoders import jsonable_encoder
-from models import TimeSeriesRequest, CompareRequest, UpdateRquest
-from config import Settings
+from contextlib import closing
 
-# adding Folder to the system path
-import os
-import sys
-api_path = os.path.abspath('./API')
-sys.path.append(api_path)
-from fetch_data import get_max_date
-from get_results import get_final_data
-from update_data import update_db
-import logging
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
+from API.get_results import get_final_data, parse_month
+from API.update_data import connect, update_db
+from config import settings
+from models import CompareRequest, TimeSeriesRequest, UpdateRquest
 
 app = FastAPI()
-settings = Settings()
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
+
 @app.get("/")
-async def root():
-    print("Hello")
+def root():
     return {"Hello": "Mundo"}
 
-@app.post("/api/v1/timeseries")
-async def getTimeSeriesData(request: Request, inputRequest: TimeSeriesRequest):
+
+def results(kind, request):
     try:
-        logger.info(f"Received time series request: {inputRequest}")
-        results = get_final_data(request_type="time-series", input_args = inputRequest)
-        return results
-    except Exception as e:
-        logger.error(f"Error processing time series request: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return get_final_data(kind, request)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.post("/api/v1/timeseries")
+def time_series(request: TimeSeriesRequest):
+    return results("time-series", request)
+
 
 @app.post("/api/v1/compare")
-async def getCompareData(request: Request, inputRequest: CompareRequest):
-    try:
-        logger.info(f"Received time series request: {inputRequest}")
-        results = get_final_data(request_type="compare", input_args = inputRequest)
-        return results
-    except Exception as e:
-        logger.error(f"Error processing time series request: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+def compare(request: CompareRequest):
+    return results("compare", request)
+
 
 @app.post("/api/v1/updateDB")
-async def updateInflationTables(request: Request, updateRequest: UpdateRquest):
+def refresh(request: UpdateRquest):
     try:
-        logger.info(f"Received time series request: {updateRequest}")
-        add_date_string = updateRequest.addDate
-        return_msg = update_db(add_date_string)
-        return return_msg
-    except Exception as e:
-        logger.error(f"Error processing time series request: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return update_db(request.addDate)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
 
 @app.get("/api/v1/maxDate")
-async def getMaxDate():
-    try:
-        logger.info("Received max date request")
-        max_date_string = get_max_date(db_name=settings.DATABASE_NAME, tablename="inflation_index")
-        return max_date_string
-    except Exception as e:
-        logger.error(f"Error processing max date request: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+def max_date():
+    with closing(connect(mode="ro")) as db:
+        return db.execute("SELECT max(date) FROM inflation_index").fetchone()[0]
+
+
+@app.get("/api/v1/weights")
+def weights(month: str = ""):
+    with closing(connect(mode="ro")) as db:
+        if month:
+            if len(month) != 7 or month[4] != "-":
+                raise HTTPException(422, "Expected YYYY-MM")
+            try:
+                selected = parse_month(month[:4], month[5:])
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from exc
+        else:
+            selected = db.execute("SELECT max(date) FROM inflation_index").fetchone()[0]
+        values = dict(db.execute("SELECT series_id,weight FROM weights_table WHERE date=?", (selected,)))
+    return {"date": selected, "weights": values}
